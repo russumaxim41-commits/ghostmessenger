@@ -1,0 +1,28 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main ] # Сборка начнется сразу после пуша
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build APK
+        run: |
+          # Если у тебя Expo, используем local build внутри GitHub
+          npx expo export
+          # Для генерации именно APK через GitHub Actions обычно 
+          # требуется настройка Java и Android SDK, но мы попробуем 
+          # прогнать базовую проверку.
+
