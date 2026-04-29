@@ -1,28 +1,27 @@
-name: Build Android APK
+name: Build Android
 on:
   push:
-    branches: [ main ] # Сборка начнется сразу после пуша
-
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8 # Используем 8-ю версию, она самая стабильная для таких задач
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build APK
-        run: |
-          # Если у тебя Expo, используем local build внутри GitHub
-          npx expo export
-          # Для генерации именно APK через GitHub Actions обычно 
-          # требуется настройка Java и Android SDK, но мы попробуем 
-          # прогнать базовую проверку.
+      - name: Expo Export
+        run: npx expo export
 
