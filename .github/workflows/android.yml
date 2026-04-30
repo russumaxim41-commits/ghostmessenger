@@ -11,17 +11,20 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8 # Используем 8-ю версию, она самая стабильная для таких задач
+          version: 8
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Expo Export
-        run: npx expo export
+      - name: Build APK (Debug)
+        run: |
+          # Устанавливаем Expo CLI локально для сборки
+          pnpm add -g expo-cli
+          # Команда для сборки локального APK (Debug версия)
+          npx expo run:android --variant release --no-install
 
