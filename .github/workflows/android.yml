@@ -17,7 +17,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Поднимаем версию до 20, чтобы метод .toReversed() работал
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Fix package.json for Build
         run: |
@@ -30,5 +36,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
-      - name: Build Project
-        run: npx expo export
+      - name: Build Android APK
+        run: |
+          # Предварительная настройка Expo для локальной сборки
+          npx expo prebuild --platform android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GhostMessenger-Debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
