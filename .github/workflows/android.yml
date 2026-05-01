@@ -12,27 +12,20 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9 # Поднимаем версию pnpm, которая лучше понимает каталоги
+          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20 # Поднимаем версию до 20, чтобы метод .toReversed() работал
 
       - name: Fix package.json for Build
         run: |
-          # 1. Удаляем проблемную workspace-зависимость
           sed -i '/@workspace\/api-client-react/d' package.json
-          
-          # 2. Массово заменяем "catalog:" на "*" (последняя версия)
-          # Это техническая правка только для сервера сборки
           sed -i 's/"catalog:"/"*"/g' package.json
           sed -i 's/catalog:/*/g' package.json
-          
-          # 3. Чистим синтаксис JSON (убираем лишние запятые перед закрывающей скобкой)
           sed -i 's/,,/,/g' package.json
           sed -i 's/, \}/ \}/g' package.json
-          sed -i 's/,\s*}/\n}/g' package.json
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile --ignore-scripts
