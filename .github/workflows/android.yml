@@ -12,7 +12,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9 # Поднимаем версию pnpm, которая лучше понимает каталоги
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,13 +24,15 @@ jobs:
           # 1. Удаляем проблемную workspace-зависимость
           sed -i '/@workspace\/api-client-react/d' package.json
           
-          # 2. Заменяем "catalog:" на "*" (любая версия), чтобы pnpm не выдавал ошибку
-          # Это позволит pnpm самому подобрать подходящую версию библиотеки
+          # 2. Массово заменяем "catalog:" на "*" (последняя версия)
+          # Это техническая правка только для сервера сборки
+          sed -i 's/"catalog:"/"*"/g' package.json
           sed -i 's/catalog:/*/g' package.json
           
-          # 3. Чистим синтаксис JSON после правок
+          # 3. Чистим синтаксис JSON (убираем лишние запятые перед закрывающей скобкой)
           sed -i 's/,,/,/g' package.json
           sed -i 's/, \}/ \}/g' package.json
+          sed -i 's/,\s*}/\n}/g' package.json
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile --ignore-scripts
