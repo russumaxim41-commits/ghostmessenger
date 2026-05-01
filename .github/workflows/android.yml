@@ -25,24 +25,29 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Fix package.json for Build
+      - name: Fix package.json & app.json
         run: |
+          # Очистка зависимостей
           sed -i '/@workspace\/api-client-react/d' package.json
           sed -i 's/"catalog:"/"*"/g' package.json
           sed -i 's/catalog:/*/g' package.json
-          sed -i 's/,,/,/g' package.json
-          sed -i 's/, \}/ \}/g' package.json
+          
+          # Проверка и фикс app.json (добавляем android.package если его нет)
+          if ! grep -q "package" app.json; then
+            sed -i '/"android": {/a \      "package": "com.russumaxim.ghostmessenger",' app.json
+          fi
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
       - name: Build Android APK
         run: |
-          # Флаг --no-install решает проблему интерактивного режима
           npx expo prebuild --platform android --no-install
           cd android
+          # Увеличиваем лимиты памяти для Gradle, чтобы не было вылетов
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
