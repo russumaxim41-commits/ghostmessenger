@@ -27,12 +27,9 @@ jobs:
 
       - name: Fix package.json & app.json
         run: |
-          # Очистка зависимостей
           sed -i '/@workspace\/api-client-react/d' package.json
           sed -i 's/"catalog:"/"*"/g' package.json
           sed -i 's/catalog:/*/g' package.json
-          
-          # Проверка и фикс app.json (добавляем android.package если его нет)
           if ! grep -q "package" app.json; then
             sed -i '/"android": {/a \      "package": "com.russumaxim.ghostmessenger",' app.json
           fi
@@ -44,7 +41,8 @@ jobs:
         run: |
           npx expo prebuild --platform android --no-install
           cd android
-          # Увеличиваем лимиты памяти для Gradle, чтобы не было вылетов
+          # Очищаем файл и записываем настройки памяти ПРАВИЛЬНО с новой строки
+          echo "" > gradle.properties
           echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
