@@ -19,12 +19,16 @@ jobs:
         with:
           node-version: 18
 
-      - name: Fix Workspace Dependencies
+      - name: Fix package.json for Build
         run: |
-          # Удаляем проблемную зависимость из package.json перед установкой
-          # Это техническая правка только для сервера сборки
+          # 1. Удаляем проблемную workspace-зависимость
           sed -i '/@workspace\/api-client-react/d' package.json
-          # Исправляем возможные ошибки в JSON после удаления строки
+          
+          # 2. Заменяем "catalog:" на "*" (любая версия), чтобы pnpm не выдавал ошибку
+          # Это позволит pnpm самому подобрать подходящую версию библиотеки
+          sed -i 's/catalog:/*/g' package.json
+          
+          # 3. Чистим синтаксис JSON после правок
           sed -i 's/,,/,/g' package.json
           sed -i 's/, \}/ \}/g' package.json
 
