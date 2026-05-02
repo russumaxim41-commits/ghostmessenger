@@ -38,15 +38,17 @@ jobs:
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
       - name: Build Android APK
+        env:
+          NODE_ENV: production
         run: |
           npx expo prebuild --platform android --no-install
           cd android
-          # Очищаем и записываем все необходимые флаги для Expo/React Native
+          # Включаем New Architecture, так как этого требует Reanimated 4
           echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" > gradle.properties
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
           echo "hermesEnabled=true" >> gradle.properties
-          echo "newArchEnabled=false" >> gradle.properties
+          echo "newArchEnabled=true" >> gradle.properties
           
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
