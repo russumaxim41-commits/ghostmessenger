@@ -1,4 +1,4 @@
-name: Build Android
+name: Build Ghost Messenger
 on:
   push:
     branches: [ main ]
@@ -25,15 +25,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Fix package.json & app.json
-        run: |
-          sed -i '/@workspace\/api-client-react/d' package.json
-          sed -i 's/"catalog:"/"*"/g' package.json
-          sed -i 's/catalog:/*/g' package.json
-          if ! grep -q "package" app.json; then
-            sed -i '/"android": {/a \      "package": "com.russumaxim.ghostmessenger",' app.json
-          fi
-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
@@ -43,7 +34,7 @@ jobs:
         run: |
           npx expo prebuild --platform android --no-install
           cd android
-          # Включаем New Architecture, так как этого требует Reanimated 4
+          # Конфигурация специально под Reanimated 4 и автономную работу
           echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" > gradle.properties
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
@@ -53,8 +44,8 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GhostMessenger-Debug
+          name: GhostMessenger-Alpha
           path: android/app/build/outputs/apk/debug/app-debug.apk
